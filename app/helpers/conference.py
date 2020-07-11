@@ -1,11 +1,12 @@
 import datetime
 from datetime import datetime
-
+import json
 import pymysql
 from flask import jsonify
 
 from app.common.models import Conference
 from app.helpers.database import get_connection
+from app.helpers.extensions import mongo
 
 
 def get_conferences_public():
@@ -28,3 +29,11 @@ def get_conferences_public():
             return conferences, 200
         except KeyError:
             return jsonify({"msg": "Error getting conferences."}), 400
+
+
+def get_sessions_per_conference_private(conference_title):
+    session_cursor = mongo.db.session.find({"conferenceTitle": conference_title}, {'_id': False})
+    sessions = []
+    for entry in session_cursor:
+        sessions.append(entry)
+    return sessions, 200
